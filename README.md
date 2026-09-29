@@ -2,6 +2,8 @@
 
 A functional prototype for managing instructor engagements from intake to completion.
 
+🚀 Live demo:https://joseantonioescobar.github.io/instructor-operations-command-center-prototype/
+
 This project started from a simple operations problem: when a process involves multiple people, handoffs, communication channels and scattered files, it becomes surprisingly easy to lose visibility of what is happening, who owns the next step, and what is blocking progress.
 
 The goal of this prototype is to demonstrate a simple operating model that keeps ownership, actions, deadlines, blockers and evidence visible in one place.
