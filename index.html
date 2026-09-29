@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIIZZ · Instructor Operations</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f6f8;--surface:#fff;--border:#e4e7ec;--border-2:#eef0f3;
+  --text:#0c111d;--text-2:#475467;--text-3:#98a2b3;
+  --accent:#2b59d4;--accent-soft:#eef2fd;
+  --green:#067647;--green-bg:#ecfdf3;--green-bd:#abefc6;--green-solid:#12b76a;
+  --yellow:#b54708;--yellow-bg:#fffaeb;--yellow-bd:#fedf89;--yellow-solid:#f79009;
+  --red:#b42318;--red-bg:#fef3f2;--red-bd:#fecdca;--red-solid:#f04438;
+  --radius:10px;
+}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+::selection{background:#dbe4fb}
+.app{display:flex;min-height:100vh}
+.sidebar{width:246px;flex:0 0 246px;background:#fff;border-right:1px solid var(--border);
+  position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  padding:14px 12px 12px;overflow-y:auto}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:56px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.86);
+  backdrop-filter:saturate(180%) blur(10px);-webkit-backdrop-filter:saturate(180%) blur(10px);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;position:sticky;top:0;z-index:20}
+.content{padding:26px 28px 72px;max-width:1460px;width:100%}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px}
+.brand-mark{width:27px;height:27px;border-radius:7px;background:var(--text);color:#fff;
+  display:grid;place-items:center;font-size:11px;font-weight:700;letter-spacing:-.03em;flex:0 0 27px}
+.brand-name{font-size:13.5px;font-weight:600;letter-spacing:-.015em;line-height:1.2}
+.brand-sub{font-size:10.5px;color:var(--text-3);letter-spacing:.03em;text-transform:uppercase;font-weight:500}
+.nav-group{margin-bottom:16px}
+.nav-label{font-size:10px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);padding:0 10px 7px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;
+  font-size:13px;color:var(--text-2);cursor:pointer;user-select:none;
+  transition:background .12s ease,color .12s ease}
+.nav-item:hover{background:#f4f5f7;color:var(--text)}
+.nav-item.active{background:#f0f2f6;color:var(--text);font-weight:600}
+.nav-item svg{width:15px;height:15px;flex:0 0 15px;opacity:.72}
+.nav-item.active svg{opacity:1}
+.nav-count{margin-left:auto;font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums;font-weight:500}
+.nav-item.active .nav-count{color:var(--text-2)}
+.side-foot{margin-top:auto;padding:13px 10px 2px;border-top:1px solid var(--border-2);
+  font-size:10.5px;color:var(--text-3);line-height:1.6}
+.side-foot strong{color:var(--text-2);font-weight:600}
+.user-chip{display:flex;align-items:center;gap:8px;padding:7px 8px;margin-top:10px;
+  border:1px solid var(--border-2);border-radius:8px;background:#fafbfc}
+.user-chip .av{width:22px;height:22px;flex:0 0 22px;font-size:9px}
+.user-chip .uc-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.15}
+.user-chip .uc-role{font-size:10.5px;color:var(--text-3);line-height:1.3}
+.crumb{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-3)}
+.crumb b{color:var(--text);font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:14px}
+.topbar-note{font-size:11px;color:var(--text-3);display:flex;align-items:center;gap:6px;
+  border:1px solid var(--border);border-radius:20px;padding:4px 10px;background:#fafbfc}
+.pulse{width:5px;height:5px;border-radius:50%;background:var(--yellow-solid)}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:22px}
+.page-title{font-size:21px;font-weight:600;letter-spacing:-.025em;line-height:1.2}
+.page-sub{font-size:13px;color:var(--text-2);margin-top:4px}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:13px 16px;border-bottom:1px solid var(--border-2)}
+.card-title{font-size:13px;font-weight:600;letter-spacing:-.01em}
+.card-sub{font-size:11.5px;color:var(--text-3);margin-top:2px}
+.card-body{padding:16px}
+.grid-2{display:grid;grid-template-columns:1.55fr 1fr;gap:14px}
+.grid-2b{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px 15px}
+.kpi-val{font-size:26px;font-weight:600;letter-spacing:-.035em;line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi-label{font-size:11.5px;color:var(--text-2);margin-top:7px;font-weight:550}
+.kpi.accent-red .kpi-val{color:var(--red)}
+.kpi.accent-yellow .kpi-val{color:var(--yellow)}
+.kpi.accent-green .kpi-val{color:var(--green)}
+.notice{display:flex;gap:11px;align-items:flex-start;background:#fff;border:1px solid var(--border);
+  border-left:3px solid var(--text);border-radius:8px;padding:11px 14px;font-size:12.5px;
+  color:var(--text-2);line-height:1.55;margin-bottom:20px}
+.notice b{color:var(--text);font-weight:600}
+.notice svg{width:15px;height:15px;flex:0 0 15px;margin-top:1px;opacity:.55}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:separate;border-spacing:0}
+thead th{font-size:10.5px;text-transform:uppercase;letter-spacing:.055em;color:var(--text-3);
+  font-weight:650;text-align:left;padding:9px 12px;background:#fafbfc;
+  border-bottom:1px solid var(--border);white-space:nowrap}
+tbody td{padding:11px 12px;border-bottom:1px solid var(--border-2);font-size:12.5px;
+  color:var(--text-2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .1s ease}
+tbody tr[data-open]:hover{background:#fafbfc;cursor:pointer}
+td .strong{color:var(--text);font-weight:600;font-size:13px;letter-spacing:-.01em}
+.sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.muted{color:var(--text-3)}
+.due-over{color:var(--red);font-weight:600}
+.due-today{color:var(--yellow);font-weight:600}
+.av{width:24px;height:24px;border-radius:50%;background:#eef0f3;color:var(--text-2);
+  display:grid;place-items:center;font-size:9.5px;font-weight:650;flex:0 0 24px;
+  letter-spacing:.02em;border:1px solid #e6e8ec}
+.who{display:flex;align-items:center;gap:9px}
+.who .av{width:26px;height:26px;flex:0 0 26px;font-size:10px}
+.own{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:6px;
+  font-size:11.5px;font-weight:550;border:1px solid;white-space:nowrap;line-height:1.5}
+.badge .dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex:0 0 5px}
+.badge.green{color:var(--green);background:var(--green-bg);border-color:var(--green-bd)}
+.badge.yellow{color:var(--yellow);background:var(--yellow-bg);border-color:var(--yellow-bd)}
+.badge.red{color:var(--red);background:var(--red-bg);border-color:var(--red-bd)}
+.badge.neutral{color:var(--text-2);background:#f4f5f7;border-color:var(--border-2)}
+.pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11.5px;
+  background:#f4f5f7;color:var(--text-2);border:1px solid var(--border-2);white-space:nowrap}
+.pill.dark{background:#f0f2f6;color:var(--text);border-color:#e2e5ea;font-weight:550}
+.prog{display:flex;align-items:center;gap:7px}
+.prog-track{width:44px;height:4px;border-radius:3px;background:#eaecf0;overflow:hidden;flex:0 0 44px}
+.prog-fill{display:block;height:100%;border-radius:3px;background:#98a2b3}
+.prog-fill.green{background:var(--green-solid)}
+.prog-fill.yellow{background:var(--yellow-solid)}
+.prog-fill.red{background:var(--red-solid)}
+.prog-num{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+.search{position:relative;flex:0 1 300px;min-width:180px}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;opacity:.42;pointer-events:none}
+.search input{width:100%;height:34px;border:1px solid var(--border);border-radius:8px;
+  padding:0 11px 0 31px;font-size:12.5px;font-family:inherit;color:var(--text);
+  background:#fff;outline:none;transition:border-color .13s,box-shadow .13s}
+.search input::placeholder{color:var(--text-3)}
+.search input:focus{border-color:#b9c4da;box-shadow:0 0 0 3px rgba(43,89,212,.08)}
+select{height:34px;border:1px solid var(--border);border-radius:8px;padding:0 28px 0 10px;
+  font-size:12.5px;font-family:inherit;color:var(--text-2);background:#fff;outline:none;
+  cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16' fill='none' stroke='%2398a2b3' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M4 6l4 4 4-4'/></svg>");
+  background-repeat:no-repeat;background-position:right 9px center}
+select:focus{border-color:#b9c4da;box-shadow:0 0 0 3px rgba(43,89,212,.08)}
+.count{font-size:12px;color:var(--text-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;background:#fff;padding:2px;gap:2px}
+.seg button{border:none;background:transparent;font-family:inherit;font-size:12px;color:var(--text-2);
+  padding:5px 11px;border-radius:6px;cursor:pointer;font-weight:500;transition:background .12s,color .12s}
+.seg button:hover{background:#f4f5f7}
+.seg button.on{background:#f0f2f6;color:var(--text);font-weight:600}
+.action-group{margin-bottom:20px}
+.action-group-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-left:2px}
+.action-group-title{font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
+.action-group-count{font-size:10.5px;color:var(--text-3);background:#f0f2f6;border-radius:20px;padding:1px 7px;font-weight:600}
+.action-row{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);
+  border-radius:9px;padding:12px 14px;margin-bottom:7px;cursor:pointer;
+  transition:border-color .12s,box-shadow .12s}
+.action-row:hover{border-color:#d8dde5;box-shadow:0 2px 8px rgba(16,24,40,.05)}
+.action-row .st-dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px}
+.st-dot.green{background:var(--green-solid)}
+.st-dot.yellow{background:var(--yellow-solid)}
+.st-dot.red{background:var(--red-solid)}
+.action-main{flex:1;min-width:0}
+.action-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.action-meta{font-size:11.5px;color:var(--text-3);margin-top:2px}
+.due-chip{font-size:11.5px;font-weight:550;padding:3px 9px;border-radius:20px;white-space:nowrap;
+  border:1px solid var(--border-2);background:#fafbfc;color:var(--text-2)}
+.due-chip.over{color:var(--red);background:var(--red-bg);border-color:var(--red-bd)}
+.due-chip.today{color:var(--yellow);background:var(--yellow-bg);border-color:var(--yellow-bd)}
+.film-item{display:flex;align-items:center;gap:14px;padding:13px 16px;
+  border-bottom:1px solid var(--border-2);cursor:pointer;transition:background .1s}
+.film-item:last-child{border-bottom:none}
+.film-item:hover{background:#fafbfc}
+.film-date{width:46px;flex:0 0 46px;text-align:center;border-right:1px solid var(--border-2);padding-right:12px}
+.fd-day{font-size:17px;font-weight:600;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.fd-mon{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-top:2px}
+.film-main{flex:1;min-width:0}
+.film-name{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.film-meta{font-size:11.5px;color:var(--text-3);margin-top:2px}
+.film-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.dep-warn{font-size:11px;color:var(--red);background:var(--red-bg);border:1px solid var(--red-bd);
+  border-radius:6px;padding:2px 7px;white-space:nowrap;font-weight:550}
+.dep-warn.yellow{color:var(--yellow);background:var(--yellow-bg);border-color:var(--yellow-bd)}
+.health-bar{display:flex;gap:3px;height:9px;margin:4px 0 16px}
+.health-bar span{border-radius:3px;display:block}
+.health-bar .g{background:var(--green-solid)}
+.health-bar .y{background:var(--yellow-solid)}
+.health-bar .r{background:var(--red-solid)}
+.legend{display:flex;gap:20px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2)}
+.legend-swatch{width:9px;height:9px;border-radius:3px;flex:0 0 9px}
+.legend-val{font-weight:650;color:var(--text);font-variant-numeric:tabular-nums}
+.bottleneck{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border-2)}
+.bottleneck:last-child{border-bottom:none;padding-bottom:2px}
+.bn-count{width:26px;height:26px;flex:0 0 26px;border-radius:7px;display:grid;place-items:center;
+  font-size:12px;font-weight:650;background:#f0f2f6;color:var(--text);font-variant-numeric:tabular-nums}
+.bn-count.red{background:var(--red-bg);color:var(--red)}
+.bn-count.yellow{background:var(--yellow-bg);color:var(--yellow)}
+.bn-text{font-size:12.5px;color:var(--text-2)}
+.bn-text b{color:var(--text);font-weight:600}
+.pipe-row{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border-2)}
+.pipe-row:last-child{border-bottom:none}
+.pipe-name{font-size:12.5px;color:var(--text-2);flex:0 0 140px}
+.pipe-track{flex:1;height:6px;border-radius:3px;background:#f0f2f6;overflow:hidden}
+.pipe-fill{display:block;height:100%;border-radius:3px;background:#cbd2dc}
+.pipe-fill.active{background:#98a2b3}
+.pipe-num{font-size:12px;font-weight:600;color:var(--text);width:18px;text-align:right;font-variant-numeric:tabular-nums}
+.auto-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.auto-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px 17px;
+  display:flex;flex-direction:column;gap:11px}
+.auto-title{font-size:13px;font-weight:600;letter-spacing:-.01em}
+.auto-desc{font-size:12.5px;color:var(--text-2);line-height:1.55}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:4px}
+.chip{font-size:11px;padding:3px 8px;border-radius:6px;background:#f4f5f7;
+  border:1px solid var(--border-2);color:var(--text-2);white-space:nowrap;font-weight:500}
+.chip.blue{background:var(--accent-soft);border-color:#d3ddfa;color:#2647b0}
+.chip.dark{background:#f0f2f6;border-color:#e2e5ea;color:var(--text);font-weight:600}
+.arw{color:var(--text-3);font-size:11px}
+.q-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;
+  border-bottom:1px solid var(--border-2);font-size:12.5px;color:var(--text-2);line-height:1.55}
+.q-item:last-child{border-bottom:none}
+.q-item svg{width:14px;height:14px;flex:0 0 14px;margin-top:2px;opacity:.4}
+.arch{display:flex;flex-direction:column;gap:0}
+.arch-step{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--border);
+  border-radius:8px;background:#fff;font-size:12.5px}
+.arch-step .n{width:20px;height:20px;border-radius:6px;background:#f0f2f6;color:var(--text-2);
+  display:grid;place-items:center;font-size:10.5px;font-weight:650;flex:0 0 20px}
+.arch-step b{color:var(--text);font-weight:600}
+.arch-step.now{border-color:#c9d4ee;background:#fafbff}
+.arch-step.now .n{background:var(--accent-soft);color:var(--accent)}
+.arch-conn{width:1px;height:12px;background:var(--border);margin-left:24px}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:520px;max-width:94vw;background:#fff;
+  border-left:1px solid var(--border);box-shadow:-20px 0 50px rgba(16,24,40,.09);
+  transform:translateX(102%);transition:transform .26s cubic-bezier(.32,.72,0,1);
+  z-index:60;overflow-y:auto;overscroll-behavior:contain}
+.drawer.open{transform:none}
+.scrim{position:fixed;inset:0;background:rgba(16,24,40,.3);opacity:0;pointer-events:none;
+  transition:opacity .26s;z-index:55}
+.scrim.open{opacity:1;pointer-events:auto}
+.dw-head{position:sticky;top:0;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border-2);padding:16px 20px 14px;z-index:2}
+.dw-top{display:flex;align-items:flex-start;gap:12px}
+.dw-top .av{width:38px;height:38px;flex:0 0 38px;font-size:13px}
+.dw-name{font-size:16px;font-weight:600;letter-spacing:-.02em}
+.dw-meta{font-size:12px;color:var(--text-3);margin-top:2px}
+.dw-close{margin-left:auto;width:28px;height:28px;border-radius:7px;border:1px solid var(--border);
+  background:#fff;display:grid;place-items:center;cursor:pointer;color:var(--text-2);
+  transition:background .12s;flex:0 0 28px}
+.dw-close:hover{background:#f4f5f7}
+.dw-close svg{width:13px;height:13px}
+.dw-status-row{display:flex;align-items:center;gap:8px;margin-top:13px;flex-wrap:wrap}
+.dw-body{padding:18px 20px 48px}
+.dw-section{margin-bottom:22px}
+.dw-label{font-size:10.5px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:9px}
+.callout{border:1px solid var(--border);border-left:3px solid var(--text);border-radius:8px;
+  padding:12px 14px;background:#fafbfc}
+.callout.red{border-left-color:var(--red-solid);background:var(--red-bg);border-color:var(--red-bd)}
+.callout.yellow{border-left-color:var(--yellow-solid);background:var(--yellow-bg);border-color:var(--yellow-bd)}
+.callout-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.callout-sub{font-size:12px;color:var(--text-2);margin-top:3px;line-height:1.5}
+.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border-2);
+  border:1px solid var(--border-2);border-radius:8px;overflow:hidden}
+.kv{background:#fff;padding:11px 13px}
+.kv-k{font-size:10.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.kv-v{font-size:13px;color:var(--text);margin-top:4px;font-weight:550}
+.chk-list{list-style:none;border:1px solid var(--border-2);border-radius:8px;overflow:hidden}
+.chk{display:flex;align-items:center;gap:10px;padding:10px 13px;font-size:12.5px;
+  color:var(--text-3);border-bottom:1px solid var(--border-2);background:#fff}
+.chk:last-child{border-bottom:none}
+.chk-box{width:16px;height:16px;border-radius:50%;border:1.5px solid #d5dae1;
+  display:grid;place-items:center;font-size:9px;color:transparent;flex:0 0 16px;background:#fff}
+.chk.done .chk-box{background:#344054;border-color:#344054;color:#fff}
+.chk.done{color:var(--text);font-weight:500}
+.stage-bar{display:flex;gap:3px;margin-bottom:8px}
+.stage-bar span{flex:1;height:5px;border-radius:3px;background:#eef0f3}
+.stage-bar span.done{background:#344054}
+.stage-bar span.current{background:#98a2b3}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.doc-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:5px 10px;
+  border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--text-2);
+  cursor:default;transition:background .12s,border-color .12s}
+.doc-chip:hover{background:#fafbfc;border-color:#d8dde5}
+.doc-chip svg{width:13px;height:13px;opacity:.5}
+.act{display:flex;gap:11px;padding:8px 0;font-size:12.5px;color:var(--text-2);
+  border-bottom:1px solid var(--border-2)}
+.act:last-child{border-bottom:none}
+.act-d{flex:0 0 48px;color:var(--text-3);font-size:11.5px;padding-top:1px;font-variant-numeric:tabular-nums}
+@media (max-width:1240px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .grid-2,.grid-2b,.auto-grid{grid-template-columns:1fr}
+}
+@media (max-width:980px){
+  .sidebar{display:none}
+  .content{padding:20px 16px 60px}
+  .topbar{padding:0 16px}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="content"></main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" data-close></div>
+<aside class="drawer" id="drawer"></aside>
+
+<script>
+/* ================= ICONS ================= */
+var ICON = {
+  overview:'<rect x="2" y="2" width="5" height="5" rx="1.4"/><rect x="9" y="2" width="5" height="5" rx="1.4"/><rect x="2" y="9" width="5" height="5" rx="1.4"/><rect x="9" y="9" width="5" height="5" rx="1.4"/>',
+  list:'<path d="M6 4h8M6 8h8M6 12h8"/><circle cx="3" cy="4" r=".9" fill="currentColor" stroke="none"/><circle cx="3" cy="8" r=".9" fill="currentColor" stroke="none"/><circle cx="3" cy="12" r=".9" fill="currentColor" stroke="none"/>',
+  check:'<rect x="2.5" y="2.5" width="11" height="11" rx="2.6"/><path d="M5.4 8.2l1.8 1.8 3.4-3.7"/>',
+  alert:'<path d="M8 2.6L14.4 13.4H1.6z"/><path d="M8 6.6v3.1"/><circle cx="8" cy="11.7" r=".75" fill="currentColor" stroke="none"/>',
+  calendar:'<rect x="2" y="3.5" width="12" height="10.5" rx="2"/><path d="M2 7h12M5.5 2v3M10.5 2v3"/>',
+  chart:'<path d="M2 13.2h12"/><path d="M4 13.2V6.6M8 13.2V3.4M12 13.2V8.6"/>',
+  bolt:'<path d="M8.6 1.8L3 9h4l-.5 5.2L12 7H8z"/>',
+  file:'<path d="M4 2.5h5.4L13 6.1v7.4a1 1 0 01-1 1H4a1 1 0 01-1-1v-10a1 1 0 011-1z"/><path d="M9.4 2.5V6.1H13"/>',
+  search:'<circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6L14 14"/>',
+  close:'<path d="M4 4l8 8M12 4l-8 8"/>',
+  info:'<circle cx="8" cy="8" r="6.2"/><path d="M8 7.4v3.4"/><circle cx="8" cy="5.3" r=".7" fill="currentColor" stroke="none"/>',
+  doc:'<path d="M4 2.5h5.4L13 6.1v7.4a1 1 0 01-1 1H4a1 1 0 01-1-1v-10a1 1 0 011-1z"/><path d="M9.4 2.5V6.1H13"/>',
+  help:'<circle cx="8" cy="8" r="6.2"/><path d="M6.3 6.2a1.75 1.75 0 113.1 1.1c-.5.5-.9.8-.9 1.6"/><circle cx="8.5" cy="11.3" r=".7" fill="currentColor" stroke="none"/>'
+};
+function svg(n, cls){
+  cls = cls || '';
+  return '<svg class="'+cls+'" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'+ICON[n]+'</svg>';
+}
+
+/* ================= CONSTANTS ================= */
+var STAGES = ['Intake & Agreement','Onboarding','Content Lock','Production Ready','Filmed & Delivered','Closed'];
+var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/* ---- Dynamic date base: every date in this prototype is relative to the day the file is opened ---- */
+function iso(d){ var m=('0'+(d.getMonth()+1)).slice(-2), dd=('0'+d.getDate()).slice(-2); return d.getFullYear()+'-'+m+'-'+dd; }
+function addDays(base, n){ var d = new Date(base); d.setDate(d.getDate()+n); return iso(d); }
+var _now = new Date(); _now.setHours(0,0,0,0);
+var TODAY = iso(_now);
+var WEEK_END = addDays(_now, 7);
+
+function fmt(iso){
+  if(!iso) return '—';
+  var p = iso.split('-');
+  return MONTHS[parseInt(p[1],10)-1] + ' ' + parseInt(p[2],10);
+}
+function initials(name){
+  var p = name.trim().split(/\s+/);
+  return (p[0].charAt(0) + (p[1] ? p[1].charAt(0) : '')).toUpperCase();
+}
+function progress(e){
+  var done = 0;
+  for(var i=0;i<e.checklist.length;i++){ if(e.checklist[i].done) done++; }
+  return {done:done, total:e.checklist.length, pct: Math.round(done/e.checklist.length*100)};
+}
+function isActive(e){ return e.stage !== 'Closed'; }
+function isAtRisk(e){ return isActive(e) && (e.status === 'red' || e.status === 'yellow'); }
+function stageIndex(s){ return STAGES.indexOf(s); }
+function statusLabel(s){ return s === 'green' ? 'Green' : s === 'yellow' ? 'Yellow' : 'Red'; }
+function badge(s, label){
+  return '<span class="badge '+s+'"><span class="dot"></span>'+(label || statusLabel(s))+'</span>';
+}
+function dueClass(e){
+  if(!e.due || !isActive(e)) return 'muted';
+  if(e.due < TODAY) return 'due-over';
+  if(e.due === TODAY) return 'due-today';
+  return '';
+}
+
+/* ================= MOCK DATA ================= */
+/* All dates are offsets from _now so the prototype stays accurate on any day it is opened. */
+var DATA = [
+{id:'INS-1041',instructor:'Maria Chen',academy:'AI Academy',program:'AI Leadership Intensive',
+ stage:'Onboarding',status:'yellow',owner:'Jose',nextAction:'Collect headshot',due:TODAY,
+ blocker:'Waiting for instructor headshot',targetFilming:addDays(_now,3),actualFilming:null,
+ compensation:'$4,500',payment:'Not invoiced',updated:addDays(_now,-2),
+ checklist:[{l:'Bio received',done:true},{l:'Official title verified',done:true},{l:'Legal documents signed',done:true},{l:'Headshot received',done:false}],
+ evidence:['Agreement','Bio','Legal Docs','Curriculum'],
+ activity:[['2 days ago','Reminder sent to instructor for headshot'],['5 days ago','Stage moved to Onboarding'],['11 days ago','Agreement signed and countersigned']]},
+
+{id:'INS-1038',instructor:'James Carter',academy:'Leadership',program:'Executive Presence',
+ stage:'Content Lock',status:'green',owner:'David',nextAction:'Confirm curriculum outline',due:addDays(_now,3),
+ blocker:'',targetFilming:addDays(_now,15),actualFilming:null,
+ compensation:'$5,200',payment:'Deposit paid',updated:addDays(_now,-3),
+ checklist:[{l:'Session topics confirmed',done:true},{l:'Speaker brief received',done:true},{l:'Curriculum outline approved',done:false},{l:'Slide deck received',done:false}],
+ evidence:['Agreement','Bio','Topics Outline'],
+ activity:[['3 days ago','Speaker brief received'],['7 days ago','Stage moved to Content Lock'],['14 days ago','Onboarding completed']]},
+
+{id:'INS-1044',instructor:'Sofia Rodriguez',academy:'Data Science',program:'Applied ML Foundations',
+ stage:'Production Ready',status:'red',owner:'Jose',nextAction:'Confirm filming location',due:addDays(_now,-1),
+ blocker:'Location not confirmed',targetFilming:addDays(_now,2),actualFilming:null,
+ compensation:'$6,000',payment:'Deposit paid',updated:addDays(_now,-2),
+ checklist:[{l:'Curriculum locked',done:true},{l:'Production requirements communicated',done:true},{l:'Crew booked',done:true},{l:'Location confirmed',done:false}],
+ evidence:['Agreement','Curriculum','Production Brief','Location Options'],
+ activity:[['2 days ago','Escalated to Red — filming in 3 days'],['4 days ago','Location options sent to production'],['9 days ago','Stage moved to Production Ready']]},
+
+{id:'INS-1045',instructor:'Daniel Weber',academy:'Marketing',program:'Growth Strategy',
+ stage:'Intake & Agreement',status:'red',owner:'David',nextAction:'Resolve compensation',due:addDays(_now,-3),
+ blocker:'Compensation not agreed',targetFilming:null,actualFilming:null,
+ compensation:'Pending agreement',payment:'Not applicable',updated:addDays(_now,-4),
+ checklist:[{l:'Intake form received',done:true},{l:'Official title verified',done:false},{l:'Agreement signed',done:false},{l:'Compensation confirmed',done:false}],
+ evidence:['Intake Form','Rate Card'],
+ activity:[['4 days ago','Follow-up sent to instructor on rate'],['10 days ago','Intake form received'],['12 days ago','Engagement created']]},
+
+{id:'INS-1021',instructor:'Michael Brown',academy:'AI Academy',program:'Prompt Engineering',
+ stage:'Closed',status:'green',owner:'Jose',nextAction:'No further action',due:null,
+ blocker:'',targetFilming:addDays(_now,-17),actualFilming:addDays(_now,-17),
+ compensation:'$4,000',payment:'Paid',updated:addDays(_now,-14),
+ checklist:[{l:'Agreement signed',done:true},{l:'Assets delivered',done:true},{l:'Payment processed',done:true},{l:'Engagement closed',done:true}],
+ evidence:['Agreement','Final Assets','Invoice','Receipt'],
+ activity:[['14 days ago','Engagement closed'],['17 days ago','Filming completed'],['19 days ago','Payment processed']]},
+
+{id:'INS-1036',instructor:'Olivia Thompson',academy:'Leadership',program:'Team Dynamics',
+ stage:'Filmed & Delivered',status:'green',owner:'Marcus',nextAction:'Close engagement',due:addDays(_now,2),
+ blocker:'',targetFilming:addDays(_now,-3),actualFilming:addDays(_now,-3),
+ compensation:'$4,800',payment:'Paid',updated:addDays(_now,-2),
+ checklist:[{l:'Filming complete',done:true},{l:'Assets uploaded',done:true},{l:'Payment processed',done:true},{l:'Post-engagement review',done:true}],
+ evidence:['Agreement','Final Assets','Invoice','Feedback Notes'],
+ activity:[['2 days ago','Final assets stored in shared drive'],['3 days ago','Filming completed'],['5 days ago','Production readiness confirmed']]},
+
+{id:'INS-1039',instructor:'Lucas Martin',academy:'Data Science',program:'Data Storytelling',
+ stage:'Content Lock',status:'green',owner:'David',nextAction:'Review curriculum draft',due:addDays(_now,1),
+ blocker:'',targetFilming:addDays(_now,10),actualFilming:null,
+ compensation:'$5,500',payment:'Deposit paid',updated:addDays(_now,-2),
+ checklist:[{l:'Session topics confirmed',done:true},{l:'Curriculum draft received',done:true},{l:'Slide deck received',done:true},{l:'Supporting materials received',done:false}],
+ evidence:['Agreement','Bio','Curriculum Draft','Slides'],
+ activity:[['2 days ago','Slide deck received'],['6 days ago','Curriculum draft shared for review'],['13 days ago','Stage moved to Content Lock']]},
+
+{id:'INS-1043',instructor:'Emma Wilson',academy:'Marketing',program:'Brand Positioning',
+ stage:'Onboarding',status:'green',owner:'Jose',nextAction:'Hand off to Content Lock',due:TODAY,
+ blocker:'',targetFilming:addDays(_now,17),actualFilming:null,
+ compensation:'$4,200',payment:'Not invoiced',updated:addDays(_now,-1),
+ checklist:[{l:'Bio received',done:true},{l:'Official title verified',done:true},{l:'Legal documents signed',done:true},{l:'Headshot received',done:true}],
+ evidence:['Agreement','Bio','Headshot','Legal Docs'],
+ activity:[['Yesterday','Headshot received'],['3 days ago','Legal documents countersigned'],['9 days ago','Stage moved to Onboarding']]},
+
+{id:'INS-1046',instructor:'David Kim',academy:'AI Academy',program:'Applied GenAI',
+ stage:'Production Ready',status:'yellow',owner:'Marcus',nextAction:'Confirm production requirements',due:addDays(_now,2),
+ blocker:'Production brief outstanding',targetFilming:addDays(_now,8),actualFilming:null,
+ compensation:'$6,500',payment:'Deposit paid',updated:addDays(_now,-3),
+ checklist:[{l:'Curriculum locked',done:true},{l:'Crew booked',done:true},{l:'Production requirements communicated',done:false},{l:'Location confirmed',done:false}],
+ evidence:['Agreement','Curriculum','Crew Sheet'],
+ activity:[['3 days ago','Flagged Yellow — production brief outstanding'],['7 days ago','Stage moved to Production Ready'],['11 days ago','Curriculum locked']]},
+
+{id:'INS-1047',instructor:'Anna Rossi',academy:'Leadership',program:'Coaching Fundamentals',
+ stage:'Intake & Agreement',status:'green',owner:'Jose',nextAction:'Send agreement for signature',due:addDays(_now,1),
+ blocker:'',targetFilming:addDays(_now,36),actualFilming:null,
+ compensation:'$3,800',payment:'Not applicable',updated:addDays(_now,-3),
+ checklist:[{l:'Intake form received',done:true},{l:'Official title verified',done:true},{l:'Agreement signed',done:false},{l:'Compensation confirmed',done:false}],
+ evidence:['Intake Form','Rate Confirmation'],
+ activity:[['3 days ago','Compensation confirmed verbally'],['7 days ago','Intake form received'],['10 days ago','Engagement created']]},
+
+{id:'INS-1029',instructor:'Robert Taylor',academy:'Data Science',program:'Analytics for Managers',
+ stage:'Closed',status:'green',owner:'David',nextAction:'No further action',due:null,
+ blocker:'',targetFilming:addDays(_now,-7),actualFilming:addDays(_now,-7),
+ compensation:'$5,000',payment:'Paid',updated:addDays(_now,-5),
+ checklist:[{l:'Agreement signed',done:true},{l:'Assets delivered',done:true},{l:'Payment processed',done:true},{l:'Engagement closed',done:true}],
+ evidence:['Agreement','Final Assets','Invoice','Receipt'],
+ activity:[['5 days ago','Engagement closed'],['7 days ago','Filming completed'],['11 days ago','Payment processed']]},
+
+{id:'INS-1048',instructor:'Elena Garcia',academy:'Marketing',program:'Content Strategy',
+ stage:'Onboarding',status:'red',owner:'Jose',nextAction:'Re-establish contact',due:addDays(_now,-4),
+ blocker:'Instructor unresponsive',targetFilming:addDays(_now,22),actualFilming:null,
+ compensation:'$4,000',payment:'Not invoiced',updated:addDays(_now,-5),
+ checklist:[{l:'Bio received',done:false},{l:'Official title verified',done:true},{l:'Legal documents signed',done:true},{l:'Headshot received',done:false}],
+ evidence:['Intake Form','Agreement'],
+ activity:[['5 days ago','Third follow-up sent — no response'],['10 days ago','Second follow-up sent'],['17 days ago','First follow-up sent']]},
+
+{id:'INS-1049',instructor:'Mark Anderson',academy:'AI Academy',program:'AI for Operations',
+ stage:'Content Lock',status:'green',owner:'David',nextAction:'Confirm session topics',due:addDays(_now,3),
+ blocker:'',targetFilming:addDays(_now,21),actualFilming:null,
+ compensation:'$5,800',payment:'Deposit paid',updated:addDays(_now,-4),
+ checklist:[{l:'Curriculum outline received',done:true},{l:'Session topics confirmed',done:false},{l:'Slide deck received',done:false},{l:'Supporting materials received',done:false}],
+ evidence:['Agreement','Bio','Curriculum Outline'],
+ activity:[['4 days ago','Curriculum outline received'],['8 days ago','Stage moved to Content Lock'],['15 days ago','Onboarding completed']]},
+
+{id:'INS-1050',instructor:'Rachel Lee',academy:'Leadership',program:'Feedback Systems',
+ stage:'Production Ready',status:'green',owner:'Marcus',nextAction:'Prepare filming day run sheet',due:addDays(_now,4),
+ blocker:'',targetFilming:addDays(_now,7),actualFilming:null,
+ compensation:'$4,600',payment:'Deposit paid',updated:addDays(_now,-1),
+ checklist:[{l:'Curriculum locked',done:true},{l:'Production requirements communicated',done:true},{l:'Crew booked',done:true},{l:'Location confirmed',done:true}],
+ evidence:['Agreement','Curriculum','Production Brief','Location Confirmation'],
+ activity:[['Yesterday','Location confirmed'],['4 days ago','Production brief approved'],['9 days ago','Crew booked']]},
+
+{id:'INS-1051',instructor:'Thomas Miller',academy:'Data Science',program:'Forecasting & Planning',
+ stage:'Intake & Agreement',status:'green',owner:'Jose',nextAction:'Send welcome packet',due:addDays(_now,2),
+ blocker:'',targetFilming:addDays(_now,44),actualFilming:null,
+ compensation:'$4,900',payment:'Not applicable',updated:addDays(_now,-2),
+ checklist:[{l:'Intake form received',done:true},{l:'Official title verified',done:true},{l:'Agreement signed',done:true},{l:'Compensation confirmed',done:false}],
+ evidence:['Intake Form','Agreement','Rate Confirmation'],
+ activity:[['2 days ago','Agreement signed'],['5 days ago','Rate confirmed'],['9 days ago','Engagement created']]}
+];
+
+/* ================= METRICS ================= */
+function metrics(){
+  var active = DATA.filter(isActive);
+  return {
+    active: active.length,
+    atRisk: DATA.filter(isAtRisk).length,
+    filmingThisWeek: DATA.filter(function(e){ return e.targetFilming && e.targetFilming >= TODAY && e.targetFilming <= WEEK_END; }).length,
+    waitingInstructor: DATA.filter(function(e){ return isActive(e) && /instructor/i.test(e.blocker); }).length,
+    readyToClose: DATA.filter(function(e){ return e.stage === 'Filmed & Delivered' && progress(e).pct === 100; }).length,
+    green: active.filter(function(e){ return e.status === 'green'; }).length,
+    yellow: active.filter(function(e){ return e.status === 'yellow'; }).length,
+    red: active.filter(function(e){ return e.status === 'red'; }).length
+  };
+}
+
+/* ================= STATE ================= */
+var state = {
+  page: 'overview',
+  q: '',
+  stage: 'active',
+  status: 'all',
+  ownerF: 'all',
+  actionsOwner: 'Jose'
+};
+
+/* ================= NAV ================= */
+var NAV = [
+  { group:'Operations', items:[
+    {id:'overview',    label:'Overview',           icon:'overview'},
+    {id:'engagements', label:'Active Engagements', icon:'list'},
+    {id:'actions',     label:'My Actions',         icon:'check'},
+    {id:'risk',        label:'At Risk',            icon:'alert'},
+    {id:'filming',     label:'Filming This Week',  icon:'calendar'},
+    {id:'ceo',         label:'CEO View',           icon:'chart'}
+  ]},
+  { group:'System', items:[
+    {id:'automation', label:'Automation & AI',     icon:'bolt'},
+    {id:'notes',      label:'Implementation Notes',icon:'file'}
+  ]}
+];
+
+var PAGE_META = {
+  overview:    ['Instructor Operations','Instructor engagement command center'],
+  engagements: ['Active Engagements','Every live instructor engagement and its current operational state'],
+  actions:     ['My Actions','Personal work queue — what you own and when it is due'],
+  risk:        ['At Risk','Engagements that are blocked, stalled, or trending toward a problem'],
+  filming:     ['Filming This Week','Upcoming production dates and unresolved dependencies'],
+  ceo:         ['CEO View','Exceptions only — what actually needs your attention'],
+  automation:  ['Automation & AI','Proposed production automations — conceptual, not yet connected'],
+  notes:       ['Implementation Notes','Assumptions and open questions to validate before build']
+};
+
+function navCount(id){
+  var m = metrics();
+  if(id === 'engagements') return m.active;
+  if(id === 'risk') return m.atRisk;
+  if(id === 'filming') return m.filmingThisWeek;
+  if(id === 'actions'){
+    return DATA.filter(function(e){
+      return e.owner === state.actionsOwner && isActive(e) && e.nextAction !== 'No further action';
+    }).length;
+  }
+  return '';
+}
+
+/* ================= SIDEBAR / TOPBAR ================= */
+function renderSidebar(){
+  var html = '<div class="brand"><div class="brand-mark">C</div><div><div class="brand-name">CIIZZ</div><div class="brand-sub">Operations</div></div></div>';
+  for(var g=0; g<NAV.length; g++){
+    html += '<div class="nav-group"><div class="nav-label">'+NAV[g].group+'</div>';
+    for(var i=0; i<NAV[g].items.length; i++){
+      var it = NAV[g].items[i];
+      var c = navCount(it.id);
+      html += '<div class="nav-item'+(state.page===it.id?' active':'')+'" data-nav="'+it.id+'">'
+        + svg(it.icon) + '<span>'+it.label+'</span>'
+        + (c!=='' ? '<span class="nav-count">'+c+'</span>' : '')
+        + '</div>';
+    }
+    html += '</div>';
+  }
+  html += '<div class="side-foot"><strong>Conceptual prototype.</strong><br>Proposed production system of record: Airtable.'
+    + '<div class="user-chip"><span class="av">JE</span><div><div class="uc-name">Jose Escobar</div><div class="uc-role">Chief of Staff / Operations</div></div></div></div>';
+  document.getElementById('sidebar').innerHTML = html;
+}
+
+function renderTopbar(){
+  var meta = PAGE_META[state.page];
+  document.getElementById('topbar').innerHTML =
+    '<div class="crumb">CIIZZ Operations <span style="opacity:.5">/</span> <b>'+meta[0]+'</b></div>'
+    + '<div class="topbar-right"><div class="topbar-note"><span class="pulse"></span> Prototype · mock data</div><span class="av">JE</span></div>';
+}
+
+/* ================= HELPERS ================= */
+function pageHead(title, sub){
+  return '<div class="page-head"><div><div class="page-title">'+title+'</div><div class="page-sub">'+sub+'</div></div></div>';
+}
+function progressCell(e){
+  var p = progress(e);
+  return '<div class="prog"><span class="prog-track"><span class="prog-fill '+e.status+'" style="width:'+p.pct+'%"></span></span><span class="prog-num">'+p.done+'/'+p.total+'</span></div>';
+}
+function ownerCell(o){
+  return '<span class="own"><span class="av">'+initials(o)+'</span>'+o+'</span>';
+}
+function instructorCell(e){
+  return '<div class="who"><span class="av">'+initials(e.instructor)+'</span><div><div class="strong">'+e.instructor+'</div><div class="sub">'+e.id+'</div></div></div>';
+}
+
+/* ================= PAGE: OVERVIEW ================= */
+function pageOverview(){
+  var m = metrics();
+  var attention = DATA.filter(isAtRisk).sort(function(a,b){
+    if(a.status !== b.status) return a.status === 'red' ? -1 : 1;
+    return (a.due||'9999') < (b.due||'9999') ? -1 : 1;
+  });
+  var upcoming = DATA.filter(function(e){
+    return e.targetFilming && e.targetFilming >= TODAY && e.targetFilming <= WEEK_END;
+  }).sort(function(a,b){ return a.targetFilming < b.targetFilming ? -1 : 1; });
+
+  var h = pageHead('Instructor Operations','Instructor engagement command center');
+
+  h += '<div class="kpis">'
+    + '<div class="kpi"><div class="kpi-val">'+m.active+'</div><div class="kpi-label">Active Engagements</div></div>'
+    + '<div class="kpi accent-red"><div class="kpi-val">'+m.atRisk+'</div><div class="kpi-label">At Risk</div></div>'
+    + '<div class="kpi"><div class="kpi-val">'+m.filmingThisWeek+'</div><div class="kpi-label">Filming This Week</div></div>'
+    + '<div class="kpi accent-yellow"><div class="kpi-val">'+m.waitingInstructor+'</div><div class="kpi-label">Waiting on Instructor</div></div>'
+    + '<div class="kpi accent-green"><div class="kpi-val">'+m.readyToClose+'</div><div class="kpi-label">Ready to Close</div></div>'
+    + '</div>';
+
+  h += '<div class="notice">'+svg('info')+'<div><b>This is a functional prototype, not the production system.</b> The operating model shown here is designed to be implemented in Airtable as the system of record, with automations and AI layered on top.</div></div>';
+
+  h += '<div class="grid-2">';
+
+  h += '<div class="card"><div class="card-head"><div><div class="card-title">Attention Required</div><div class="card-sub">Yellow and Red engagements that need a decision or intervention</div></div><span class="badge neutral">'+attention.length+' engagement'+(attention.length===1?'':'s')+'</span></div>'
+    + '<div class="tbl-wrap"><table><thead><tr>'
+    + '<th>Instructor</th><th>Stage</th><th>Status</th><th>Owner</th><th>Problem</th><th>Next Action</th><th>Due</th>'
+    + '</tr></thead><tbody>';
+  for(var i=0;i<attention.length;i++){
+    var e = attention[i];
+    h += '<tr data-open="'+e.id+'">'
+      + '<td>'+instructorCell(e)+'</td>'
+      + '<td><span class="pill">'+e.stage+'</span></td>'
+      + '<td>'+badge(e.status)+'</td>'
+      + '<td>'+ownerCell(e.owner)+'</td>'
+      + '<td class="muted">'+(e.blocker || '—')+'</td>'
+      + '<td>'+e.nextAction+'</td>'
+      + '<td class="'+dueClass(e)+'">'+fmt(e.due)+'</td>'
+      + '</tr>';
+  }
+  h += '</tbody></table></div></div>';
+
+  h += '<div class="stack">';
+
+  h += '<div class="card"><div class="card-head"><div class="card-title">Pipeline</div></div><div class="card-body">';
+  for(var s=0; s<STAGES.length; s++){
+    var n = DATA.filter(function(x){ return x.stage === STAGES[s]; }).length;
+    var pct = Math.round(n/DATA.length*100);
+    h += '<div class="pipe-row"><div class="pipe-name">'+STAGES[s]+'</div>'
+      + '<div class="pipe-track"><span class="pipe-fill'+(n?' active':'')+'" style="width:'+pct+'%"></span></div>'
+      + '<div class="pipe-num">'+n+'</div></div>';
+  }
+  h += '</div></div>';
+
+  h += '<div class="card"><div class="card-head"><div class="card-title">Upcoming Filming</div><div class="card-sub">Next 7 days</div></div><div class="card-body" style="padding:4px 0">';
+  if(upcoming.length === 0){
+    h += '<div style="padding:16px;color:var(--text-3);font-size:12.5px">No filming scheduled this week.</div>';
+  } else {
+    for(var u=0; u<upcoming.length; u++){
+      var f = upcoming[u];
+      var dp = f.targetFilming.split('-');
+      h += '<div class="film-item" data-open="'+f.id+'">'
+        + '<div class="film-date"><div class="fd-day">'+parseInt(dp[2],10)+'</div><div class="fd-mon">'+MONTHS[parseInt(dp[1],10)-1]+'</div></div>'
+        + '<div class="film-main"><div class="film-name">'+f.instructor+'</div><div class="film-meta">'+f.academy+' · '+f.program+'</div></div>'
+        + '<div class="film-right">'+(f.blocker ? '<span class="dep-warn'+(f.status==='yellow'?' yellow':'')+'">'+f.blocker+'</span>' : '')+badge(f.status)+'</div>'
+        + '</div>';
+    }
+  }
+  h += '</div></div>';
+
+  h += '</div></div>';
+  return h;
+}
+
+/* ================= PAGE: ENGAGEMENTS ================= */
+function pageEngagements(){
+  var q = state.q.toLowerCase();
+  var rows = DATA.filter(function(e){
+    if(state.stage === 'active' && !isActive(e)) return false;
+    if(state.stage === 'closed' && e.stage !== 'Closed') return false;
+    if(state.stage !== 'active' && state.stage !== 'closed' && state.stage !== 'all' && e.stage !== state.stage) return false;
+    if(state.status !== 'all' && e.status !== state.status) return false;
+    if(state.ownerF !== 'all' && e.owner !== state.ownerF) return false;
+    if(q && (e.instructor + ' ' + e.academy + ' ' + e.program + ' ' + e.id).toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+
+  var h = pageHead('Active Engagements','Every live instructor engagement and its current operational state');
+
+  h += '<div class="toolbar">'
+    + '<div class="search">'+svg('search')+'<input type="text" id="searchInput" placeholder="Search instructor, academy, program…" value="'+state.q.replace(/"/g,'&quot;')+'"></div>'
+    + '<select id="stageFilter">'
+    + '<option value="active"'+(state.stage==='active'?' selected':'')+'>Active</option>'
+    + '<option value="all"'+(state.stage==='all'?' selected':'')+'>All stages</option>'
+    + '<option value="closed"'+(state.stage==='closed'?' selected':'')+'>Closed</option>';
+  for(var s=0; s<STAGES.length-1; s++){
+    h += '<option value="'+STAGES[s]+'"'+(state.stage===STAGES[s]?' selected':'')+'>'+STAGES[s]+'</option>';
+  }
+  h += '</select>'
+    + '<select id="statusFilter">'
+    + '<option value="all"'+(state.status==='all'?' selected':'')+'>All statuses</option>'
+    + '<option value="green"'+(state.status==='green'?' selected':'')+'>Green</option>'
+    + '<option value="yellow"'+(state.status==='yellow'?' selected':'')+'>Yellow</option>'
+    + '<option value="red"'+(state.status==='red'?' selected':'')+'>Red</option>'
+    + '</select>'
+    + '<select id="ownerFilter">'
+    + '<option value="all"'+(state.ownerF==='all'?' selected':'')+'>All owners</option>'
+    + '<option value="Jose"'+(state.ownerF==='Jose'?' selected':'')+'>Jose</option>'
+    + '<option value="David"'+(state.ownerF==='David'?' selected':'')+'>David</option>'
+    + '<option value="Marcus"'+(state.ownerF==='Marcus'?' selected':'')+'>Marcus</option>'
+    + '</select>'
+    + '<span class="spacer" style="flex:1"></span>'
+    + '<span class="count">'+rows.length+' engagement'+(rows.length===1?'':'s')+'</span>'
+    + '</div>';
+
+  h += '<div class="card"><div class="tbl-wrap"><table><thead><tr>'
+    + '<th>Instructor</th><th>Academy</th><th>Program</th><th>Stage</th><th>Progress</th>'
+    + '<th>Status</th><th>Owner</th><th>Next Action</th><th>Due</th><th>Blocker</th><th>Filming</th>'
+    + '</tr></thead><tbody>';
+
+  if(rows.length === 0){
+    h += '<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--text-3)">No engagements match the current filters.</td></tr>';
+  } else {
+    for(var i=0; i<rows.length; i++){
+      var e = rows[i];
+      h += '<tr data-open="'+e.id+'">'
+        + '<td>'+instructorCell(e)+'</td>'
+        + '<td>'+e.academy+'</td>'
+        + '<td class="muted">'+e.program+'</td>'
+        + '<td><span class="pill">'+e.stage+'</span></td>'
+        + '<td>'+progressCell(e)+'</td>'
+        + '<td>'+badge(e.status)+'</td>'
+        + '<td>'+ownerCell(e.owner)+'</td>'
+        + '<td>'+(e.nextAction || '—')+'</td>'
+        + '<td class="'+dueClass(e)+'">'+fmt(e.due)+'</td>'
+        + '<td class="muted">'+(e.blocker || '—')+'</td>'
+        + '<td class="muted">'+fmt(e.targetFilming)+'</td>'
+        + '</tr>';
+    }
+  }
+  h += '</tbody></table></div></div>';
+  return h;
+}
+
+/* ================= PAGE: MY ACTIONS ================= */
+function pageActions(){
+  var owner = state.actionsOwner;
+  var mine = DATA.filter(function(e){
+    return e.owner === owner && isActive(e) && e.nextAction !== 'No further action';
+  }).sort(function(a,b){ return (a.due||'9999') < (b.due||'9999') ? -1 : 1; });
+
+  var today = mine.filter(function(e){ return e.due === TODAY; });
+  var overdue = mine.filter(function(e){ return e.due && e.due < TODAY; });
+  var thisWeek = mine.filter(function(e){ return e.due && e.due > TODAY && e.due <= WEEK_END; });
+  var later = mine.filter(function(e){ return !e.due || e.due > WEEK_END; });
+
+  var h = pageHead('My Actions','Personal work queue — what you own and when it is due');
+
+  h += '<div class="toolbar"><div class="seg" id="ownerSeg">'
+    + ['Jose','David','Marcus'].map(function(o){
+        return '<button data-owner="'+o+'" class="'+(owner===o?'on':'')+'">'+o+'</button>';
+      }).join('')
+    + '</div><span style="flex:1"></span><span class="count">'+mine.length+' action'+(mine.length===1?'':'s')+'</span></div>';
+
+  function group(label, items){
+    if(items.length === 0) return '';
+    var g = '<div class="action-group"><div class="action-group-head">'
+      + '<span class="action-group-title">'+label+'</span>'
+      + '<span class="action-group-count">'+items.length+'</span></div>';
+    for(var i=0;i<items.length;i++){
+      var e = items[i];
+      var chipCls = 'due-chip';
+      if(e.due && e.due < TODAY) chipCls += ' over';
+      else if(e.due === TODAY) chipCls += ' today';
+      g += '<div class="action-row" data-open="'+e.id+'">'
+        + '<span class="st-dot '+e.status+'"></span>'
+        + '<div class="action-main"><div class="action-title">'+e.nextAction+'</div>'
+        + '<div class="action-meta">'+e.instructor+' · '+e.academy+' · '+e.stage+'</div></div>'
+        + (e.due ? '<span class="'+chipCls+'">'+(e.due===TODAY?'Due today':e.due<TODAY?'Overdue · '+fmt(e.due):'Due '+fmt(e.due))+'</span>' : '')
+        + '</div>';
+    }
+    g += '</div>';
+    return g;
+  }
+
+  h += group('Overdue', overdue);
+  h += group('Due today', today);
+  h += group('Due this week', thisWeek);
+  h += group('Later', later);
+
+  if(mine.length === 0){
+    h += '<div class="card"><div class="card-body" style="text-align:center;padding:40px;color:var(--text-3)">No active actions assigned to '+owner+'.</div></div>';
+  }
+  return h;
+}
+
+/* ================= PAGE: AT RISK ================= */
+function pageRisk(){
+  var red = DATA.filter(function(e){ return isAtRisk(e) && e.status === 'red'; });
+  var yellow = DATA.filter(function(e){ return isAtRisk(e) && e.status === 'yellow'; });
+
+  function riskTable(items){
+    if(items.length === 0) return '<div class="card"><div class="card-body" style="text-align:center;padding:30px;color:var(--text-3)">Nothing here.</div></div>';
+    var t = '<div class="card"><div class="tbl-wrap"><table><thead><tr>'
+      + '<th>Instructor</th><th>Stage</th><th>Owner</th><th>Problem</th><th>Next Action</th><th>Due</th>'
+      + '</tr></thead><tbody>';
+    for(var i=0;i<items.length;i++){
+      var e = items[i];
+      t += '<tr data-open="'+e.id+'">'
+        + '<td>'+instructorCell(e)+'</td>'
+        + '<td><span class="pill">'+e.stage+'</span></td>'
+        + '<td>'+ownerCell(e.owner)+'</td>'
+        + '<td>'+e.blocker+'</td>'
+        + '<td>'+e.nextAction+'</td>'
+        + '<td class="'+dueClass(e)+'">'+fmt(e.due)+'</td>'
+        + '</tr>';
+    }
+    t += '</tbody></table></div></div>';
+    return t;
+  }
+
+  var h = pageHead('At Risk','Engagements that are blocked, stalled, or trending toward a problem');
+
+  h += '<div class="kpis" style="grid-template-columns:repeat(3,1fr)">'
+    + '<div class="kpi accent-red"><div class="kpi-val">'+red.length+'</div><div class="kpi-label">Red — Immediate attention</div></div>'
+    + '<div class="kpi accent-yellow"><div class="kpi-val">'+yellow.length+'</div><div class="kpi-label">Yellow — Monitor / intervene</div></div>'
+    + '<div class="kpi"><div class="kpi-val">'+(red.length+yellow.length)+'</div><div class="kpi-label">Total at risk</div></div>'
+    + '</div>';
+
+  h += '<div class="dw-label" style="margin-top:6px">🔴 Red — Immediate attention</div>';
+  h += riskTable(red);
+  h += '<div class="dw-label" style="margin-top:26px">🟡 Yellow — Monitor / intervene</div>';
+  h += riskTable(yellow);
+  return h;
+}
+
+/* ================= PAGE: FILMING ================= */
+function pageFilming(){
+  var upcoming = DATA.filter(function(e){
+    return e.targetFilming && e.targetFilming >= TODAY && e.targetFilming <= WEEK_END;
+  }).sort(function(a,b){ return a.targetFilming < b.targetFilming ? -1 : 1; });
+
+  var h = pageHead('Filming This Week','Upcoming production dates and unresolved dependencies');
+
+  if(upcoming.length === 0){
+    h += '<div class="card"><div class="card-body" style="text-align:center;padding:40px;color:var(--text-3)">No filming scheduled in the next 7 days.</div></div>';
+    return h;
+  }
+
+  h += '<div class="card"><div class="card-body" style="padding:4px 0">';
+  for(var i=0;i<upcoming.length;i++){
+    var e = upcoming[i];
+    var dp = e.targetFilming.split('-');
+    var unresolved = !!e.blocker;
+    h += '<div class="film-item" data-open="'+e.id+'">'
+      + '<div class="film-date"><div class="fd-day">'+parseInt(dp[2],10)+'</div><div class="fd-mon">'+MONTHS[parseInt(dp[1],10)-1]+'</div></div>'
+      + '<div class="film-main"><div class="film-name">'+e.instructor+'</div>'
+      + '<div class="film-meta">'+e.academy+' · '+e.program+' · Owner: '+e.owner+'</div></div>'
+      + '<div class="film-right">'
+      + (unresolved ? '<span class="dep-warn'+(e.status==='yellow'?' yellow':'')+'">'+e.blocker+'</span>' : '')
+      + badge(e.status)
+      + '</div></div>';
+  }
+  h += '</div></div>';
+  return h;
+}
+
+/* ================= PAGE: CEO VIEW ================= */
+function pageCEO(){
+  var m = metrics();
+  var total = m.active;
+  var gPct = Math.round(m.green/total*100);
+  var yPct = Math.round(m.yellow/total*100);
+  var rPct = 100 - gPct - yPct;
+
+  var exceptions = DATA.filter(isAtRisk).sort(function(a,b){
+    if(a.status !== b.status) return a.status === 'red' ? -1 : 1;
+    return (a.due||'9999') < (b.due||'9999') ? -1 : 1;
+  });
+
+  var upcoming = DATA.filter(function(e){
+    return e.targetFilming && e.targetFilming >= TODAY && e.targetFilming <= WEEK_END;
+  }).sort(function(a,b){ return a.targetFilming < b.targetFilming ? -1 : 1; });
+
+  var waiting = DATA.filter(function(e){ return isActive(e) && /instructor/i.test(e.blocker); }).length;
+  var locBlocked = DATA.filter(function(e){ return isActive(e) && /location/i.test(e.blocker); }).length;
+  var compBlocked = DATA.filter(function(e){ return isActive(e) && /compensation/i.test(e.blocker); }).length;
+
+  var h = pageHead('CEO View','Exceptions only — what actually needs your attention');
+
+  h += '<div class="notice">'+svg('info')+'<div><b>You do not need to chase people.</b> This view surfaces only the few engagements that need your attention. If nothing is listed below, the team is handling it.</div></div>';
+
+  h += '<div class="grid-2b" style="margin-bottom:14px">';
+
+  h += '<div class="card"><div class="card-head"><div class="card-title">Overall health</div><div class="card-sub">'+total+' active engagements</div></div><div class="card-body">'
+    + '<div class="health-bar">'
+    + '<span class="g" style="flex:'+gPct+'"></span>'
+    + '<span class="y" style="flex:'+yPct+'"></span>'
+    + '<span class="r" style="flex:'+rPct+'"></span>'
+    + '</div>'
+    + '<div class="legend">'
+    + '<div class="legend-item"><span class="legend-swatch" style="background:var(--green-solid)"></span>Green <span class="legend-val">'+m.green+'</span></div>'
+    + '<div class="legend-item"><span class="legend-swatch" style="background:var(--yellow-solid)"></span>Yellow <span class="legend-val">'+m.yellow+'</span></div>'
+    + '<div class="legend-item"><span class="legend-swatch" style="background:var(--red-solid)"></span>Red <span class="legend-val">'+m.red+'</span></div>'
+    + '</div></div></div>';
+
+  h += '<div class="card"><div class="card-head"><div class="card-title">Bottlenecks</div><div class="card-sub">Where engagements are getting stuck</div></div><div class="card-body" style="padding:6px 16px">';
+  if(waiting){
+    h += '<div class="bottleneck"><div class="bn-count yellow">'+waiting+'</div><div class="bn-text"><b>Waiting on instructor</b> — missing information or unresponsive</div></div>';
+  }
+  if(locBlocked){
+    h += '<div class="bottleneck"><div class="bn-count red">'+locBlocked+'</div><div class="bn-text"><b>Blocked by location</b> — production cannot be confirmed</div></div>';
+  }
+  if(compBlocked){
+    h += '<div class="bottleneck"><div class="bn-count red">'+compBlocked+'</div><div class="bn-text"><b>Awaiting compensation agreement</b> — commercial terms unresolved</div></div>';
+  }
+  if(!waiting && !locBlocked && !compBlocked){
+    h += '<div style="padding:20px 0;color:var(--text-3);font-size:12.5px">No current bottlenecks.</div>';
+  }
+  h += '</div></div>';
+
+  h += '</div>';
+
+  h += '<div class="card" style="margin-bottom:14px"><div class="card-head"><div><div class="card-title">What needs attention</div><div class="card-sub">Only exceptions — nothing here means the team is handling it</div></div><span class="badge neutral">'+exceptions.length+'</span></div>'
+    + '<div class="tbl-wrap"><table><thead><tr>'
+    + '<th>Instructor</th><th>Stage</th><th>Owner</th><th>Problem</th><th>Next Action</th><th>Due</th>'
+    + '</tr></thead><tbody>';
+  for(var i=0;i<exceptions.length;i++){
+    var e = exceptions[i];
+    h += '<tr data-open="'+e.id+'">'
+      + '<td>'+instructorCell(e)+'</td>'
+      + '<td><span class="pill">'+e.stage+'</span></td>'
+      + '<td>'+ownerCell(e.owner)+'</td>'
+      + '<td>'+e.blocker+'</td>'
+      + '<td>'+e.nextAction+'</td>'
+      + '<td class="'+dueClass(e)+'">'+fmt(e.due)+'</td>'
+      + '</tr>';
+  }
+  if(exceptions.length === 0){
+    h += '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-3)">Nothing requires your attention.</td></tr>';
+  }
+  h += '</tbody></table></div></div>';
+
+  h += '<div class="card"><div class="card-head"><div class="card-title">Upcoming filming</div><div class="card-sub">Next 7 days</div></div><div class="card-body" style="padding:4px 0">';
+  if(upcoming.length === 0){
+    h += '<div style="padding:16px;color:var(--text-3);font-size:12.5px">No filming scheduled this week.</div>';
+  } else {
+    for(var u=0; u<upcoming.length; u++){
+      var f = upcoming[u];
+      var dp = f.targetFilming.split('-');
+      h += '<div class="film-item" data-open="'+f.id+'">'
+        + '<div class="film-date"><div class="fd-day">'+parseInt(dp[2],10)+'</div><div class="fd-mon">'+MONTHS[parseInt(dp[1],10)-1]+'</div></div>'
+        + '<div class="film-main"><div class="film-name">'+f.instructor+'</div><div class="film-meta">'+f.academy+' · '+f.program+'</div></div>'
+        + '<div class="film-right">'+(f.blocker ? '<span class="dep-warn'+(f.status==='yellow'?' yellow':'')+'">'+f.blocker+'</span>' : '')+badge(f.status)+'</div>'
+        + '</div>';
+    }
+  }
+  h += '</div></div>';
+  return h;
+}
+
+/* ================= PAGE: AUTOMATION ================= */
+function pageAutomation(){
+  var h = pageHead('Automation & AI','Proposed production automations — conceptual, not yet connected');
+
+  h += '<div class="notice">'+svg('info')+'<div><b>These automations are proposed, not implemented.</b> They describe how the operating model would run on top of Airtable in production. Nothing on this page is currently connected to live systems.</div></div>';
+
+  h += '<div class="auto-grid">';
+
+  h += '<div class="auto-card"><div class="auto-title">Deadline reminders</div><div class="auto-desc">Avoid forgetting. When a Next Action approaches its due date, the owner is notified automatically.</div><div class="flow"><span class="chip dark">Airtable</span><span class="arw">→</span><span class="chip blue">Automation</span><span class="arw">→</span><span class="chip">Owner notification</span></div></div>';
+
+  h += '<div class="auto-card"><div class="auto-title">Stage handoff</div><div class="auto-desc">Avoid handoff drops. When a stage is completed, the next owner is notified with the relevant context attached.</div><div class="flow"><span class="chip dark">Stage completed</span><span class="arw">→</span><span class="chip blue">Next owner notified</span></div></div>';
+
+  h += '<div class="auto-card"><div class="auto-title">Risk detection</div><div class="auto-desc">Avoid silent failures. Engagements that sit in the same stage too long are flagged Yellow or Red automatically.</div><div class="flow"><span class="chip dark">Stalled engagement</span><span class="arw">→</span><span class="chip blue">Yellow / Red flag</span></div></div>';
+
+  h += '<div class="auto-card"><div class="auto-title">CEO escalation</div><div class="auto-desc">Avoid CEO chasing. Unresolved blockers are escalated into a concise executive briefing.</div><div class="flow"><span class="chip dark">Unresolved blocker</span><span class="arw">→</span><span class="chip blue">Executive alert</span></div></div>';
+
+  h += '<div class="auto-card" style="grid-column:1/-1"><div class="auto-title">AI assistance</div><div class="auto-desc">Classify incoming instructor emails, identify missing information, extract structured data, draft responses, suggest status updates, and summarize exceptions — always with a human in the loop for important decisions.</div><div class="flow"><span class="chip dark">Incoming email / WhatsApp</span><span class="arw">→</span><span class="chip blue">AI classification</span><span class="arw">→</span><span class="chip">Suggested update</span><span class="arw">→</span><span class="chip">Human approval</span></div></div>';
+
+  h += '</div>';
+
+  h += '<div class="card" style="margin-top:14px"><div class="card-head"><div class="card-title">What AI should not do</div></div><div class="card-body" style="font-size:12.5px;color:var(--text-2);line-height:1.65">'
+    + 'AI should not autonomously negotiate compensation, approve curriculum, make contractual decisions, or send communications that commit CIIZZ to anything. Human judgment stays in the loop wherever the decision has commercial, legal, or reputational weight.'
+    + '</div></div>';
+
+  return h;
+}
+
+/* ================= PAGE: NOTES ================= */
+function pageNotes(){
+  var h = pageHead('Implementation Notes','Assumptions and open questions to validate before build');
+
+  h += '<div class="card" style="margin-bottom:14px"><div class="card-head"><div class="card-title">Architecture</div><div class="card-sub">How this prototype maps to production</div></div><div class="card-body">'
+    + '<div class="arch">'
+    + '<div class="arch-step"><span class="n">1</span><div><b>Conceptual operating model</b> — the workflow and rules shown in this prototype</div></div>'
+    + '<div class="arch-conn"></div>'
+    + '<div class="arch-step now"><span class="n">2</span><div><b>Prototype / visual demonstration</b> — this site, built for the Loom walkthrough</div></div>'
+    + '<div class="arch-conn"></div>'
+    + '<div class="arch-step"><span class="n">3</span><div><b>Production implementation in Airtable</b> — the structured system of record</div></div>'
+    + '<div class="arch-conn"></div>'
+    + '<div class="arch-step"><span class="n">4</span><div><b>Automations + integrations + AI</b> — reminders, handoffs, risk detection, escalation</div></div>'
+    + '</div></div></div>';
+
+  var questions = [
+    'How many instructors / engagements are handled per month?',
+    'Are instructors recurring or one-time?',
+    'What is the actual SLA / cycle time for each stage?',
+    'What are the legal and compliance requirements?',
+    'What triggers creation of a new engagement?',
+    'What are the payment terms?',
+    'What happens when an instructor cancels?',
+    'Which systems are currently being used?',
+    'Who owns each stage?',
+    'What is the actual pain point that caused CIIZZ to prioritise this now?'
+  ];
+
+  h += '<div class="card"><div class="card-head"><div class="card-title">Open questions to validate</div><div class="card-sub">'+questions.length+' items</div></div><div class="card-body" style="padding:6px 16px 10px">';
+  for(var i=0;i<questions.length;i++){
+    h += '<div class="q-item">'+svg('help')+'<div>'+questions[i]+'</div></div>';
+  }
+  h += '</div></div>';
+
+  return h;
+}
+
+/* ================= DRAWER ================= */
+function openDrawer(id){
+  var e = null;
+  for(var i=0;i<DATA.length;i++){ if(DATA[i].id === id){ e = DATA[i]; break; } }
+  if(!e) return;
+  var p = progress(e);
+  var stageIdx = stageIndex(e.stage);
+
+  var h = '<div class="dw-head">'
+    + '<div class="dw-top"><span class="av">'+initials(e.instructor)+'</span>'
+    + '<div style="flex:1;min-width:0"><div class="dw-name">'+e.instructor+'</div>'
+    + '<div class="dw-meta">'+e.academy+' · '+e.program+'</div></div>'
+    + '<button class="dw-close" data-close>'+svg('close')+'</button></div>'
+    + '<div class="dw-status-row">'+badge(e.status)+'<span class="pill">'+e.stage+'</span>'
+    + '<span class="pill dark">'+p.done+'/'+p.total+' complete</span>'
+    + '<span style="font-size:11.5px;color:var(--text-3);margin-left:auto">Updated '+fmt(e.updated)+'</span>'
+    + '</div></div>';
+
+  h += '<div class="dw-body">';
+
+  h += '<div class="dw-section"><div class="dw-label">Stage progress</div>'
+    + '<div class="stage-bar">';
+  for(var s=0;s<STAGES.length;s++){
+    var cls = s < stageIdx ? 'done' : (s === stageIdx ? 'current' : '');
+    h += '<span class="'+cls+'"></span>';
+  }
+  h += '</div>'
+    + '<div style="font-size:11.5px;color:var(--text-3);line-height:1.5">'
+    + STAGES.map(function(x,i){
+        return i === stageIdx ? '<b style="color:var(--text)">'+x+'</b>' : x;
+      }).join(' · ')
+    + '</div></div>';
+
+  if(e.status === 'red' || e.status === 'yellow'){
+    h += '<div class="dw-section"><div class="dw-label">Next action</div>'
+      + '<div class="callout '+(e.status==='red'?'red':'yellow')+'">'
+      + '<div class="callout-title">'+e.nextAction+'</div>'
+      + '<div class="callout-sub">'+(e.due ? 'Due '+fmt(e.due) : 'No due date')+' · Owner: '+e.owner
+      + (e.blocker ? ' · <b>'+e.blocker+'</b>' : '')+'</div>'
+      + '</div></div>';
+  } else if(e.nextAction && e.nextAction !== 'No further action'){
+    h += '<div class="dw-section"><div class="dw-label">Next action</div>'
+      + '<div class="callout"><div class="callout-title">'+e.nextAction+'</div>'
+      + '<div class="callout-sub">'+(e.due ? 'Due '+fmt(e.due) : 'No due date')+' · Owner: '+e.owner+'</div>'
+      + '</div></div>';
+  }
+
+  h += '<div class="dw-section"><div class="dw-label">Key details</div>'
+    + '<div class="kv-grid">'
+    + '<div class="kv"><div class="kv-k">Owner</div><div class="kv-v">'+e.owner+'</div></div>'
+    + '<div class="kv"><div class="kv-k">Target filming</div><div class="kv-v">'+fmt(e.targetFilming)+'</div></div>'
+    + '<div class="kv"><div class="kv-k">Compensation</div><div class="kv-v">'+e.compensation+'</div></div>'
+    + '<div class="kv"><div class="kv-k">Payment status</div><div class="kv-v">'+e.payment+'</div></div>'
+    + '</div></div>';
+
+  h += '<div class="dw-section"><div class="dw-label">Checklist — '+p.done+' of '+p.total+' complete</div>'
+    + '<ul class="chk-list">';
+  for(var c=0;c<e.checklist.length;c++){
+    var it = e.checklist[c];
+    h += '<li class="chk'+(it.done?' done':'')+'"><span class="chk-box">✓</span>'+it.l+'</li>';
+  }
+  h += '</ul></div>';
+
+  h += '<div class="dw-section"><div class="dw-label">Evidence &amp; links</div><div class="chips">';
+  for(var d=0;d<e.evidence.length;d++){
+    h += '<span class="doc-chip">'+svg('doc')+e.evidence[d]+'</span>';
+  }
+  h += '</div></div>';
+
+  h += '<div class="dw-section"><div class="dw-label">Recent activity</div>';
+  for(var a=0;a<e.activity.length;a++){
+    h += '<div class="act"><div class="act-d">'+e.activity[a][0]+'</div><div>'+e.activity[a][1]+'</div></div>';
+  }
+  h += '</div>';
+
+  h += '</div>';
+
+  document.getElementById('drawer').innerHTML = h;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('scrim').classList.add('open');
+}
+
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('scrim').classList.remove('open');
+}
+
+/* ================= RENDER DISPATCHER ================= */
+function render(){
+  renderSidebar();
+  renderTopbar();
+
+  var html = '';
+  switch(state.page){
+    case 'overview':    html = pageOverview(); break;
+    case 'engagements': html = pageEngagements(); break;
+    case 'actions':     html = pageActions(); break;
+    case 'risk':        html = pageRisk(); break;
+    case 'filming':     html = pageFilming(); break;
+    case 'ceo':         html = pageCEO(); break;
+    case 'automation':  html = pageAutomation(); break;
+    case 'notes':       html = pageNotes(); break;
+    default:            html = pageOverview();
+  }
+  document.getElementById('content').innerHTML = html;
+
+  var si = document.getElementById('searchInput');
+  if(si){
+    si.addEventListener('input', function(ev){
+      state.q = ev.target.value;
+      var pos = ev.target.selectionStart;
+      render();
+      var newSi = document.getElementById('searchInput');
+      if(newSi){ newSi.focus(); newSi.setSelectionRange(pos, pos); }
+    });
+  }
+  var sf = document.getElementById('stageFilter');
+  if(sf){
+    sf.addEventListener('change', function(ev){ state.stage = ev.target.value; render(); });
+  }
+  var stf = document.getElementById('statusFilter');
+  if(stf){
+    stf.addEventListener('change', function(ev){ state.status = ev.target.value; render(); });
+  }
+  var of = document.getElementById('ownerFilter');
+  if(of){
+    of.addEventListener('change', function(ev){ state.ownerF = ev.target.value; render(); });
+  }
+  var os = document.getElementById('ownerSeg');
+  if(os){
+    os.addEventListener('click', function(ev){
+      var b = ev.target.closest('button[data-owner]');
+      if(!b) return;
+      state.actionsOwner = b.getAttribute('data-owner');
+      render();
+    });
+  }
+}
+
+/* ================= GLOBAL EVENT DELEGATION ================= */
+document.addEventListener('click', function(ev){
+  var nav = ev.target.closest('[data-nav]');
+  if(nav){
+    state.page = nav.getAttribute('data-nav');
+    closeDrawer();
+    render();
+    window.scrollTo(0,0);
+    return;
+  }
+  var op = ev.target.closest('[data-open]');
+  if(op){
+    openDrawer(op.getAttribute('data-open'));
+    return;
+  }
+  if(ev.target.closest('[data-close]')){
+    closeDrawer();
+    return;
+  }
+});
+
+document.addEventListener('keydown', function(ev){
+  if(ev.key === 'Escape') closeDrawer();
+});
+
+/* ================= INIT ================= */
+render();
+</script>
+</body>
+</html>
